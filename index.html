@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CryptoFinder - Kayıp Bitcoin Avı</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: #000000;
+            color: #ffffff;
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at top, #1a0033 0%, #000000 50%);
+            z-index: -2;
+        }
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                linear-gradient(90deg, rgba(255,107,0,0.03) 1px, transparent 1px),
+                linear-gradient(rgba(255,107,0,0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: -1;
+            animation: grid-move 20s linear infinite;
+        }
+        @keyframes grid-move {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+        .container { max-width: 1200px; margin: 0 auto; position: relative; z-index: 1; }
+        
+        .ad-banner {
+            background: linear-gradient(135deg, rgba(255,107,0,0.1) 0%, rgba(138,43,226,0.1) 100%);
+            padding: 30px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255,107,0,0.2);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .ad-banner::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,107,0,0.1), transparent);
+            animation: shimmer 3s infinite;
+        }
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) translateY(-100%); }
+            100% { transform: translateX(100%) translateY(100%); }
+        }
+        .ad-content {
+            position: relative;
+            z-index: 1;
+        }
+        .ad-content h3 {
+            color: #ff6b00;
+            font-size: 18px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        .ad-content p {
+            color: #888;
+            font-size: 13px;
+        }
+        
+        .hero {
+            text-align: center;
+            margin-bottom: 50px;
+            padding: 40px 20px;
+        }
+        .hero-badge {
+            display: inline-block;
+            background: rgba(255,107,0,0.15);
+            color: #ff6b00;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255,107,0,0.3);
+            animation: pulse-glow 2s infinite;
+        }
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(255,107,0,0.3); }
+            50% { box-shadow: 0 0 40px rgba(255,107,0,0.5); }
+        }
+        .title {
+            font-size: 56px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #ff6b00 0%, #8a2be2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 15px;
+            letter-spacing: -2px;
+            line-height: 1.1;
+        }
+        .subtitle {
+            font-size: 20px;
+            color: #888;
+            margin-bottom: 10px;
+            font-weight: 400;
+        }
+        .hook-text {
+            font-size: 16px;
+            color: #ff6b00;
+            font-weight: 600;
+            margin-top: 15px;
+        }
+        .status-bar {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 24px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-top: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #ef4444;
+        }
+        .status-dot.active {
+            background: #22c55e;
+            animation: pulse-dot 2s infinite;
+        }
+        @keyframes pulse-dot {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.8; }
+        }
+        
+        .main-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 25px;
+            margin-bottom: 20px;
+        }
+        .left-panel { display: flex; flex-direction: column; gap: 25px; }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        .stat-box {
+            background: rgba(255,255,255,0.03);
+            padding: 25px;
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.08);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        .stat-box:hover {
+            transform: translateY(-2px);
+            border-color: rgba(255,107,0,0.3);
+            background: rgba(255,255,255,0.05);
+        }
+        .stat-label {
+            color: #888;
+            font-size: 11px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+        .stat-value {
+            font-size: 36px;
+            font-weight: 900;
+            letter-spacing: -1px;
+        }
+        .stat-value.orange { color: #ff6b00; }
+        .stat-value.green { color: #22c55e; }
+        .stat-value.blue { color: #3b82f6; }
+        .stat-value.purple { color: #8a2be2; }
+        
+        .user-section {
+            background: rgba(255,255,255,0.03);
+            padding: 25px;
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        .user-section h3 {
+            color: #ff6b00;
+            font-size: 13px;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 700;
+        }
+        .user-input-group {
+            display: flex;
+            gap: 10px;
+        }
+        .user-input {
+            flex: 1;
+            padding: 14px 18px;
+            background: rgba(0,0,0,0.4);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
+            color: #fff;
+            font-family: inherit;
+            font-size: 15px;
+            transition: all 0.3s;
+        }
+        .user-input:focus {
+            outline: none;
+            border-color: #ff6b00;
+            background: rgba(0,0,0,0.6);
+        }
+        .user-input::placeholder {
+            color: #555;
+        }
+        .btn-confirm {
+            padding: 14px 24px;
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+        .btn-confirm:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(34,197,94,0.3);
+        }
+        .btn-confirm:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal.show {
+            display: flex;
+        }
+        .modal-content {
+            background: linear-gradient(135deg, #1a0033 0%, #000000 100%);
+            padding: 40px;
+            border-radius: 20px;
+            border: 2px solid rgba(255,107,0,0.3);
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            animation: modalSlideIn 0.4s ease;
+            box-shadow: 0 20px 60px rgba(255,107,0,0.3);
+        }
+        @keyframes modalSlideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        .modal-icon {
+            font-size: 60px;
+            margin-bottom: 20px;
+            animation: iconPulse 2s infinite;
+        }
+        @keyframes iconPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        .modal-title {
+            font-size: 28px;
+            font-weight: 900;
+            color: #ff6b00;
+            margin-bottom: 15px;
+            letter-spacing: -1px;
+        }
+        .modal-text {
+            font-size: 15px;
+            color: #aaa;
+            line-height: 1.8;
+            margin-bottom: 25px;
+        }
+        .modal-highlight {
+            background: rgba(255,107,0,0.1);
+            border: 1px solid rgba(255,107,0,0.3);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 25px;
+        }
+        .modal-highlight strong {
+            color: #22c55e;
+            font-size: 16px;
+        }
+        .modal-buttons {
+            display: flex;
+            gap: 15px;
+        }
+        .modal-btn {
+            flex: 1;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+        .modal-btn-start {
+            background: linear-gradient(135deg, #ff6b00 0%, #ff8800 100%);
+            color: white;
+            box-shadow: 0 10px 30px rgba(255,107,0,0.3);
+        }
+        .modal-btn-start:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(255,107,0,0.5);
+        }
+        .modal-btn-cancel {
+            background: rgba(255,255,255,0.1);
+            color: #888;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .modal-btn-cancel:hover {
+            background: rgba(255,255,255,0.15);
+            color: #fff;
+        }
+        
+        .words-section {
+            background: rgba(255,255,255,0.03);
+            padding: 25px;
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        .words-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .words-header h3 {
+            color: #ff6b00;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 700;
+        }
+        .words-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+        .word-box {
+            background: rgba(0,0,0,0.4);
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.05);
+            text-align: center;
+            transition: all 0.2s;
+        }
+        .word-box:hover {
+            border-color: rgba(255,107,0,0.3);
+        }
+        .word-num {
+            color: #555;
+            font-size: 9px;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+        .word-text {
+            color: #888;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .word-text.active {
+            color: #ff6b00;
+            animation: word-appear 0.3s ease;
+        }
+        @keyframes word-appear {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        
+        .controls {
+            display: flex;
+            gap: 15px;
+        }
+        button {
+            flex: 1;
+            padding: 20px;
+            font-size: 16px;
+            font-weight: 700;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+            letter-spacing: 0.5px;
+        }
+        .btn-start {
+            background: linear-gradient(135deg, #ff6b00 0%, #ff8800 100%);
+            color: white;
+            box-shadow: 0 10px 30px rgba(255,107,0,0.3);
+        }
+        .btn-start:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(255,107,0,0.4);
+        }
+        .btn-start:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .btn-stop {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            display: none;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .btn-stop:hover {
+            background: rgba(255,255,255,0.15);
+        }
+        
+        .info-box {
+            background: rgba(255,255,255,0.03);
+            padding: 20px;
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        .info-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .info-label {
+            color: #888;
+            font-size: 11px;
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        .copy-btn {
+            background: rgba(255,107,0,0.15);
+            border: 1px solid rgba(255,107,0,0.3);
+            color: #ff6b00;
+            font-size: 10px;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-weight: 600;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .copy-btn:hover {
+            background: rgba(255,107,0,0.25);
+        }
+        .info-value {
+            color: #fff;
+            font-size: 13px;
+            word-break: break-all;
+            line-height: 1.6;
+            font-family: 'Courier New', monospace;
+        }
+        .info-box.secret {
+            background: rgba(255,0,0,0.05);
+            border-color: rgba(255,0,0,0.2);
+        }
+        
+        .leaderboard {
+            background: rgba(255,255,255,0.03);
+            padding: 25px;
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.08);
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+        }
+        .leaderboard h3 {
+            color: #ff6b00;
+            font-size: 16px;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            text-align: center;
+            letter-spacing: 1px;
+            font-weight: 700;
+        }
+        .leader-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border: 1px solid rgba(255,255,255,0.05);
+            transition: all 0.2s;
+        }
+        .leader-item:hover {
+            border-color: rgba(255,107,0,0.3);
+            transform: translateX(5px);
+        }
+        .leader-rank {
+            color: #ff6b00;
+            font-weight: 900;
+            font-size: 18px;
+            margin-right: 12px;
+            min-width: 35px;
+        }
+        .leader-name {
+            flex: 1;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .leader-score {
+            color: #22c55e;
+            font-weight: 700;
+            font-size: 14px;
+        }
+        
+        .api-warning {
+            background: rgba(255,107,0,0.1);
+            border: 1px solid #ff6b00;
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 13px;
+            color: #ff6b00;
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        @media (max-width: 968px) {
+            .title { font-size: 36px; }
+            .main-grid { grid-template-columns: 1fr; }
+            .words-grid { grid-template-columns: repeat(3, 1fr); }
+            .leaderboard { position: static; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="ad-banner">
+            <div class="ad-content">
+                <h3>🎯 Reklam Alanı</h3>
+                <p>Buraya reklam vermek için iletişime geçin • 728x90 Banner</p>
+            </div>
+        </div>
+
+        <div class="hero">
+            <div class="hero-badge">🔥 TÜRKİYE'NİN İLK CRYPTO FINDER'I</div>
+            <h1 class="title">CryptoFinder</h1>
+            <p class="subtitle">Kaybolmuş Bitcoin cüzdanlarını bul, hayatını değiştir</p>
+            <p class="hook-text">💰 Dünyada 4 milyon BTC kayıp • Değeri: $280 milyar</p>
+            <div class="status-bar">
+                <div class="status-dot" id="statusDot"></div>
+                <span id="statusText">SİSTEM HAZIRLANIYOR...</span>
+            </div>
+        </div>
+
+        <div class="main-grid">
+            <div class="left-panel">
+                <div class="stats">
+                    <div class="stat-box">
+                        <div class="stat-label">⚡ Senin Taramanın</div>
+                        <div class="stat-value orange" id="scanCount">0</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">💎 Bulunan BTC</div>
+                        <div class="stat-value green" id="totalBtc">0.00000000</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">🌍 Global Tarama</div>
+                        <div class="stat-value blue" id="globalScans">0</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">📡 API Kullanımı</div>
+                        <div class="stat-value purple" id="apiCalls">0/300</div>
+                    </div>
+                </div>
+
+                <div class="user-section">
+                    <h3>👤 Leaderboard İsmin</h3>
+                    <div class="user-input-group">
+                        <input type="text" id="username" class="user-input" placeholder="İsmini gir..." maxlength="20">
+                        <button class="btn-confirm" id="confirmBtn" onclick="confirmUsername()">✓ Onayla</button>
+                    </div>
+                </div>
+
+                <div id="apiWarning" class="api-warning" style="display: none;">
+                    ⚠️ API limiti doldu! 10 dakika bekle veya tarayıcını yenile
+                </div>
+
+                <div class="words-section">
+                    <div class="words-header">
+                        <h3>🔑 Mnemonic Seed Phrase</h3>
+                    </div>
+                    <div class="words-grid" id="wordsGrid"></div>
+                </div>
+
+                <div class="controls">
+                    <button class="btn-start" id="startBtn" disabled>YÜKLENIYOR...</button>
+                    <button class="btn-stop" id="stopBtn">⏸ DURDUR</button>
+                </div>
+
+                <div class="info-box">
+                    <div class="info-header">
+                        <span class="info-label">Bitcoin Adresi</span>
+                        <button class="copy-btn" onclick="copyText('btcAddress')">📋 Kopyala</button>
+                    </div>
+                    <div class="info-value" id="btcAddress">Henüz tarama başlamadı...</div>
+                </div>
+
+                <div class="info-box secret">
+                    <div class="info-header">
+                        <span class="info-label">🔐 Private Key</span>
+                        <button class="copy-btn" onclick="copyText('privKey')">📋 Kopyala</button>
+                    </div>
+                    <div class="info-value" id="privKey">Henüz tarama başlamadı...</div>
+                </div>
+            </div>
+
+            <div class="leaderboard">
+                <h3>🏆 TOP 10 AVCILARI</h3>
+                <div id="leaderboardList"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="startModal">
+        <div class="modal-content">
+            <div class="modal-icon">🎯</div>
+            <h2 class="modal-title">Taramaya Başlamak Üzeresin!</h2>
+            <p class="modal-text">
+                Sistem otomatik olarak kayıp Bitcoin cüzdanlarını tarayacak. 
+                <strong>Her tarama gerçek blockchain verileriyle kontrol edilecek.</strong>
+            </p>
+            <div class="modal-highlight">
+                <strong>📢 ÖNEMLİ GARANTİ</strong>
+                <p style="margin-top: 10px; font-size: 14px; color: #aaa;">
+                    Bakiyeli bir cüzdan bulunduğunda sistem <strong style="color: #22c55e;">OTOMATIK OLARAK DURACAK</strong> ve sana anında bildirim gösterilecek. Cüzdan bilgileri ekranda kalacak, kaybetme riski yok!
+                </p>
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn modal-btn-cancel" onclick="closeStartModal()">❌ İptal</button>
+                <button class="modal-btn modal-btn-start" onclick="confirmStart()">🚀 Başlat</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/elliptic/6.5.4/elliptic.min.js"></script>
+
+    <script>
+        let scanning = false;
+        let count = 0;
+        let scanTimeout = null;
+        let wordlist = [];
+        let apiCallCount = 0;
+        let globalScans = 0;
+        let confirmedUsername = '';
+
+        const BASE58_ALPHABET = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+        
+        function base58Encode(bytes) {
+            let num = BigInt('0x' + bytes.map(b => b.toString(16).padStart(2, '0')).join(''));
+            let encoded = '';
+            
+            while (num > 0) {
+                const remainder = num % 58n;
+                num = num / 58n;
+                encoded = BASE58_ALPHABET[Number(remainder)] + encoded;
+            }
+            
+            for (let i = 0; i < bytes.length && bytes[i] === 0; i++) {
+                encoded = '1' + encoded;
+            }
+            
+            return encoded;
+        }
+
+        const wordsGrid = document.getElementById('wordsGrid');
+        for (let i = 1; i <= 12; i++) {
+            wordsGrid.innerHTML += `
+                <div class="word-box">
+                    <div class="word-num">#${i}</div>
+                    <div class="word-text" id="word${i}">---</div>
+                </div>
+            `;
+        }
+
+        function loadUserData() {
+            const savedCount = localStorage.getItem('scanCount');
+            const savedUsername = localStorage.getItem('confirmedUsername');
+            const savedApiCalls = localStorage.getItem('apiCalls');
+            
+            if (savedCount) {
+                count = parseInt(savedCount);
+                document.getElementById('scanCount').innerText = count;
+            }
+            if (savedUsername) {
+                confirmedUsername = savedUsername;
+                document.getElementById('username').value = savedUsername;
+                document.getElementById('username').disabled = true;
+                document.getElementById('confirmBtn').disabled = true;
+                document.getElementById('confirmBtn').innerText = '✓ Onaylı';
+            }
+            if (savedApiCalls) {
+                apiCallCount = parseInt(savedApiCalls);
+                updateApiCounter();
+            }
+        }
+
+        function confirmUsername() {
+            const username = document.getElementById('username').value.trim();
+            if (!username) {
+                alert('⚠️ Lütfen bir isim gir!');
+                return;
+            }
+            confirmedUsername = username;
+            localStorage.setItem('confirmedUsername', username);
+            document.getElementById('username').disabled = true;
+            document.getElementById('confirmBtn').disabled = true;
+            document.getElementById('confirmBtn').innerText = '✓ Onaylı';
+            alert('✅ İsmin kaydedildi: ' + username);
+        }
+
+        function saveUserData() {
+            localStorage.setItem('scanCount', count);
+            if (confirmedUsername) {
+                updateLeaderboard(confirmedUsername, count);
+            }
+        }
+
+        function updateApiCounter() {
+            document.getElementById('apiCalls').innerText = `${apiCallCount}/300`;
+            localStorage.setItem('apiCalls', apiCallCount);
+            
+            if (apiCallCount >= 300) {
+                document.getElementById('apiWarning').style.display = 'block';
+                stop();
+            }
+        }
+
+        function updateLeaderboard(username, score) {
+            let leaderboard = JSON.parse(localStorage.getItem('leaderboard') || '[]');
+            
+            const existingIndex = leaderboard.findIndex(entry => entry.name === username);
+            if (existingIndex !== -1) {
+                leaderboard[existingIndex].score = score;
+            } else {
+                leaderboard.push({ name: username, score: score });
+            }
+            
+            leaderboard.sort((a, b) => b.score - a.score);
+            leaderboard = leaderboard.slice(0, 10);
+            
+            localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
+            displayLeaderboard();
+        }
+
+        function displayLeaderboard() {
+            const leaderboard = JSON.parse(localStorage.getItem('leaderboard') || '[]');
+            const list = document.getElementById('leaderboardList');
+            
+            if (leaderboard.length === 0) {
+                list.innerHTML = '<div style="text-align: center; color: #555; padding: 30px; font-size: 13px;">İlk sen ol! 🚀</div>';
+                return;
+            }
+            
+            list.innerHTML = leaderboard.map((entry, index) => `
+                <div class="leader-item">
+                    <span class="leader-rank">#${index + 1}</span>
+                    <span class="leader-name">${entry.name}</span>
+                    <span class="leader-score">${entry.score.toLocaleString()}</span>
+                </div>
+            `).join('');
+        }
+
+        function updateGlobalScans() {
+            globalScans = parseInt(localStorage.getItem('globalTotalScans') || '0');
+            globalScans++;
+            localStorage.setItem('globalTotalScans', globalScans);
+            document.getElementById('globalScans').innerText = globalScans.toLocaleString();
+        }
+
+        async function loadWordlist() {
+            try {
+                const response = await fetch('https://raw.githubusercontent.com/bitcoin/bips/master/bip-0039/english.txt');
+                const text = await response.text();
+                wordlist = text.trim().split('\n');
+                
+                document.getElementById('statusText').innerText = 'SİSTEM HAZIR';
+                document.getElementById('startBtn').disabled = false;
+                document.getElementById('startBtn').innerText = '🚀 TARAMAYI BAŞLAT';
+                
+                return true;
+            } catch (err) {
+                alert('Sistem yüklenemedi! İnternet bağlantını kontrol et.');
+                return false;
+            }
+        }
+
+        function getRandomWords(count) {
+            const words = [];
+            for (let i = 0; i < count; i++) {
+                const randomIndex = Math.floor(Math.random() * wordlist.length);
+                words.push(wordlist[randomIndex]);
+            }
+            return words;
+        }
+
+        function mnemonicToSeed(mnemonic) {
+            const mnemonicStr = mnemonic.join(' ');
+            const salt = 'mnemonic';
+            return CryptoJS.PBKDF2(mnemonicStr, salt, {
+                keySize: 512 / 32,
+                iterations: 2048,
+                hasher: CryptoJS.algo.SHA512
+            }).toString();
+        }
+
+        function hexToBytes(hex) {
+            const bytes = [];
+            for (let i = 0; i < hex.length; i += 2) {
+                bytes.push(parseInt(hex.substr(i, 2), 16));
+            }
+            return bytes;
+        }
+
+        function privateKeyToWIF(privateKeyHex) {
+            const prefix = '80';
+            const extended = prefix + privateKeyHex;
+            const hash1 = CryptoJS.SHA256(CryptoJS.enc.Hex.parse(extended));
+            const hash2 = CryptoJS.SHA256(hash1);
+            const checksum = hash2.toString().substring(0, 8);
+            const fullHex = extended + checksum;
+            const bytes = hexToBytes(fullHex);
+            return base58Encode(bytes);
+        }
+
+        function privateKeyToAddress(privateKeyHex) {
+            const ec = new elliptic.ec('secp256k1');
+            const keyPair = ec.keyFromPrivate(privateKeyHex);
+            const publicKey = keyPair.getPublic();
+            const publicKeyHex = '04' + publicKey.getX().toString('hex').padStart(64, '0') + publicKey.getY().toString('hex').padStart(64, '0');
+            
+            const sha = CryptoJS.SHA256(CryptoJS.enc.Hex.parse(publicKeyHex));
+            const ripemd = CryptoJS.RIPEMD160(sha);
+            const extendedRipemd = '00' + ripemd.toString();
+            
+            const hash1 = CryptoJS.SHA256(CryptoJS.enc.Hex.parse(extendedRipemd));
+            const hash2 = CryptoJS.SHA256(hash1);
+            const checksum = hash2.toString().substring(0, 8);
+            const fullHex = extendedRipemd + checksum;
+            
+            const bytes = hexToBytes(fullHex);
+            return base58Encode(bytes);
+        }
+
+        async function performScan() {
+            if (!scanning) return;
+
+            try {
+                const words = getRandomWords(12);
+                
+                words.forEach((word, i) => {
+                    const el = document.getElementById(`word${i + 1}`);
+                    if (el) {
+                        el.innerText = word;
+                        el.classList.add('active');
+                    }
+                });
+
+                const seed = mnemonicToSeed(words);
+                const privateKey = seed.substring(0, 64);
+                
+                const wif = privateKeyToWIF(privateKey);
+                const address = privateKeyToAddress(privateKey);
+
+                document.getElementById('btcAddress').innerText = address;
+                document.getElementById('privKey').innerText = wif;
+
+                count++;
+                document.getElementById('scanCount').innerText = count;
+                updateGlobalScans();
+                saveUserData();
+
+                const hasBalance = await checkBalance(address);
+
+                if (hasBalance) {
+                    return;
+                }
+
+            } catch (err) {
+                console.error("Hata:", err);
+            }
+
+            if (scanning && apiCallCount < 300) {
+                scanTimeout = setTimeout(performScan, 3000);
+            } else if (apiCallCount >= 300) {
+                stop();
+            }
+        }
+
+        async function checkBalance(address) {
+            if (apiCallCount >= 300) {
+                return false;
+            }
+
+            try {
+                apiCallCount++;
+                updateApiCounter();
+
+                const res = await fetch(`https://blockchain.info/q/addressbalance/${address}`);
+                const balance = await res.text();
+                
+                if (balance && parseInt(balance) > 0) {
+                    scanning = false;
+                    const btc = (parseInt(balance) / 100000000).toFixed(8);
+                    document.getElementById('totalBtc').innerText = btc;
+                    alert(`🎉🎉🎉 TEBRIKLER!\n\nBakiyeli cüzdan bulundu!\nAdres: ${address}\nBakiye: ${btc} BTC\n\nBu inanılmaz bir şans!`);
+                    stop();
+                    return true;
+                }
+                return false;
+            } catch (e) {
+                return false;
+            }
+        }
+
+        function start() {
+            if (wordlist.length === 0) {
+                alert('⚠️ Sistem henüz hazır değil!');
+                return;
+            }
+            if (apiCallCount >= 300) {
+                alert('⚠️ API limiti doldu! 10 dakika bekle.');
+                return;
+            }
+            if (!confirmedUsername) {
+                alert('⚠️ Önce ismini onayla! 🏆');
+                document.getElementById('username').focus();
+                return;
+            }
+            // Pop-up göster
+            document.getElementById('startModal').classList.add('show');
+        }
+
+        function closeStartModal() {
+            document.getElementById('startModal').classList.remove('show');
+        }
+
+        function confirmStart() {
+            closeStartModal();
+            scanning = true;
+            document.getElementById('startBtn').style.display = 'none';
+            document.getElementById('stopBtn').style.display = 'block';
+            document.getElementById('statusText').innerText = 'TARAMA AKTIF 🔥';
+            document.getElementById('statusDot').classList.add('active');
+            performScan();
+        }
+
+        function stop() {
+            scanning = false;
+            if (scanTimeout) clearTimeout(scanTimeout);
+            document.getElementById('startBtn').style.display = 'block';
+            document.getElementById('stopBtn').style.display = 'none';
+            document.getElementById('statusText').innerText = 'SİSTEM HAZIR';
+            document.getElementById('statusDot').classList.remove('active');
+        }
+
+        function copyText(id) {
+            const text = document.getElementById(id).innerText;
+            if (text && !text.includes('başlamadı')) {
+                navigator.clipboard.writeText(text).then(() => {
+                    alert('✅ Kopyalandı!');
+                });
+            }
+        }
+
+        document.getElementById('startBtn').addEventListener('click', start);
+        document.getElementById('stopBtn').addEventListener('click', stop);
+
+        loadUserData();
+        displayLeaderboard();
+        loadWordlist();
+    </script>
+</body>
+</html>
